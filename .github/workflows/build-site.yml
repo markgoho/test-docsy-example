@@ -1,0 +1,26 @@
+name: Deploy to Firebase Hosting on merge
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.18'
+      - run: |
+          curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest \
+            | grep browser_download_url \
+            | grep Linux-64bit.deb \
+            | grep extended \
+            | cut -d '"' -f 4 \
+            | wget -i -
+          sudo dpkg -i hugo*_Linux-64bit.deb
+      - run: hugo version
+      - run: npm i
+      - run: hugo --minify
